@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern CSS Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0a;
+    --indigo: #4f46e5;
+    --warm: #f0ece8;
+    --indigo-glow: rgba(79,70,229,0.12);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--warm);
+    overflow-x: hidden;
+    min-height: 200vh;
+  }
+
+  /* ── Macro typography (weight 200) ── */
+  .macro {
+    font-weight: 200;
+    font-size: clamp(5rem, 15vw, 14rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: rgba(240,236,232,0.04);
+    pointer-events: none;
+    user-select: none;
+    position: absolute;
+    z-index: 0;
+  }
+
+  /* ── Ambient glow backgrounds ── */
+  .glow-1 {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 30%, rgba(79,70,229,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 70%, rgba(79,70,229,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-2 {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 50% at 50% 100%, rgba(240,236,232,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Progress bar (scroll-driven) ── */
+  .progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px;
+    background: var(--indigo);
+    z-index: 100;
+    transform-origin: left;
+    animation: grow-progress linear;
+    animation-timeline: scroll(root);
+  }
+  @keyframes grow-progress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ── Scroll-driven reveal ── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(60px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-reveal {
+    animation: fade-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+
+  /* ── Container query section ── */
+  .cq-section {
+    container-type: inline-size;
+    container-name: demo;
+    width: 100%;
+    padding: 2rem 4rem;
+    margin: 4rem 0;
+  }
+
+  .cq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @container demo (max-width: 600px) {
+    .cq-grid { grid-template-columns: 1fr; }
+  }
+
+  @container demo (max-width: 300px) {
+    .cq-card { font-size: 0.85rem; padding: 1rem; }
+  }
+
+  .cq-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(240,236,232,0.06);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: border-color 0.3s;
+  }
+  .cq-card h3 { color: var(--indigo); margin-bottom: 0.5rem; font-weight: 500; }
+  .cq-card p  { color: rgba(240,236,232,0.65); font-weight: 400; line-height: 1.6; }
+
+  /* ── @property ✅ ── */
+  @property --hue {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  .property-demo {
+    --hue: 0deg;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(from var(--hue), #4f46e5, #f0ece8, #4f46e5);
+    transition: --hue 1.5s ease;
+    margin: 1rem auto;
+  }
+  .property-demo:hover {
+    --hue: 360deg;
+  }
+
+  /* ── :has() cards ── */
+  .has-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    max-width: 700px;
+    margin: 2rem auto;
+  }
+
+  .has-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(240,236,232,0.08);
+    border-radius: 14px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.35s ease;
+    cursor: default;
+  }
+  .has-card .icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+  .has-card h4 { font-weight: 500; margin-bottom: 0.3rem; }
+  .has-card p  { font-size: 0.85rem; color: rgba(240,236,232,0.5); }
+
+  /* ── :has() magic ── */
+  .has-grid:has(.has-card:hover) .has-card:not(:hover) {
+    opacity: 0.4;
+    filter: blur(1px);
+    transform: scale(0.95);
+  }
+  .has-card:has(.icon) { border-color: transparent; }
+  .has-card:hover { border-color: var(--indigo); background: rgba(79,70,229,0.06); }
+
+  /* ── Section styling ── */
+  section { position: relative; padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; z-index: 1; }
+  section h2 {
+    font-weight: 200;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: var(--warm);
+    margin-bottom: 2rem;
+  }
+  section h2 span { color: var(--indigo); font-weight: 500; }
+  section .desc {
+    color: rgba(240,236,232,0.55);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  .hero h1 {
+    font-weight: 200;
+    font-size: clamp(3rem, 8vw, 7rem);
+    line-height: 1;
+    z-index: 2;
+    position: relative;
+  }
+  .hero h1 span { color: var(--indigo); font-weight: 500; }
+  .hero p {
+    font-weight: 400;
+    color: rgba(240,236,232,0.5);
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    z-index: 2;
+    position: relative;
+  }
+
+  .macro-hero { top: -8vh; left: -5vw; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .cq-section { padding: 2rem 1.5rem; }
+    section { padding: 4rem 1.5rem; }
+    .hero h1 { font-size: clamp(2.5rem, 12vw, 5rem); }
+  }
+  @media (max-width: 480px) {
+    .cq-section { padding: 1.5rem 1rem; }
+    section { padding: 3rem 1rem; }
+    .has-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"></div>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<!-- Hero -->
+<section class="hero scroll-reveal">
+  <div class="macro macro-hero">MODERN</div>
+  <h1>Modern <span>CSS</span><br>Techniques</h1>
+  <p>Scroll-driven · :has() · @property · Container Queries · Ambient Glow · Macro Type</p>
+</section>
+
+<!-- 1. Scroll-driven -->
+<section class="scroll-reveal">
+  <h2><span>01</span> Scroll-Driven Animation</h2>
+  <p class="desc">Content reveals itself based on scroll position using <code>animation-timeline: scroll()</code> and <code>view()</code>. The progress bar tracks your journey.</p>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap">
+    <div class="cq-card" style="flex:1;min-width:200px"><h3>✨ Fade Up</h3><p>Each section animates as it enters the viewport — no JS, no Intersection Observer.</p></div>
+    <div class="cq-card" style="flex:1;min-width:200px"><h3>📊 Progress</h3><p>The top bar scales from 0 to 1 driven by the root scroll timeline.</p></div>
+    <div class="cq-card" style="flex:1;min-width:200px"><h3>🎯 View Range</h3><p>Animation range controls exactly when the effect starts and ends.</p></div>
+  </div>
+</section>
+
+<!-- 2. :has() selector demo -->
+<section class="scroll-reveal">
+  <h2><span>02</span> The :has() Selector</h2>
+  <p class="desc">Hover any card below — sibling cards dim and blur. <code>:has()</code> enables parent-aware styling without extra classes.</p>
+  <div class="has-grid">
+    <div class="has-card">
+      <span class="icon">🎨</span>
+      <h4>Design</h4>
+      <p>Color theory & composition</p>
+    </div>
+    <div class="has-card">
+      <span class="icon">⚡</span>
+      <h4>Performance</h4>
+      <p>Optimized rendering</p>
+    </div>
+    <div class="has-card">
+      <span class="icon">🧩</span>
+      <h4>Modular</h4>
+      <p>Component-based thinking</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. @property demo -->
+<section class="scroll-reveal">
+  <h2><span>03</span> @property — Custom Properties</h2>
+  <p class="desc">A registered custom property <code>--hue</code> (type: &lt;angle&gt;) transitions smoothly on hover. Native CSS can't animate unregistered custom props.</p>
+  <div class="property-demo"></div>
+  <p style="text-align:center;color:rgba(240,236,232,0.4);font-size:0.85rem;margin-top:0.5rem">Hover the circle →</p>
+</section>
+
+<!-- 4. Container query demo -->
+<section class="scroll-reveal">
+  <h2><span>04</span> Container Queries</h2>
+  <p class="desc">This grid reflows based on its <em>container's</em> width — not the viewport. Resize the browser to see it adapt.</p>
+</section>
+
+<div class="cq-section" style="width:90%;margin:0 auto 6rem">
+  <div class="cq-grid">
+    <div class="cq-card"><h3>📦 Container</h3><p>Uses <code>container-type: inline-size</code> so children query its width, not the viewport.</p></div>
+    <div class="cq-card"><h3>🔄 Reflows</h3><p>When the container shrinks below 600px, two columns become one.</p></div>
+    <div class="cq-card"><h3>📐 Responsive</h3><p>Container queries decouple sizing from viewport breakpoints — perfect for reusable components.</p></div>
+    <div class="cq-card"><h3>🧩 Composable</h3><p>Drop this anywhere; it adapts to its parent, not the screen size.</p></div>
+  </div>
+</div>
+
+<!-- Footer ambient -->
+<section class="scroll-reveal" style="text-align:center;padding-bottom:4rem">
+  <div class="macro" style="position:relative;font-size:clamp(3rem,10vw,8rem);color:rgba(79,70,229,0.06);margin-bottom:-1.5rem">✦</div>
+  <p style="color:rgba(240,236,232,0.3);font-weight:200;font-size:0.9rem">Built with modern CSS · No frameworks · One file</p>
+</section>
+
+</body>
+</html>
